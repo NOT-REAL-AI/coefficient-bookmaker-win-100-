@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Калькулятор вилок до 10 исходов</title>
+    <title>КАЛЬКУЛЯТОР СТАВОК</title>
     <style>
         * {
             box-sizing: border-box;
@@ -28,9 +28,10 @@
         }
         h1 {
             font-size: 1.8rem;
-            font-weight: 650;
+            font-weight: 700;
             margin: 0 0 6px 0;
             color: #1c3b35;
+            letter-spacing: -0.5px;
         }
         .desc {
             color: #5f7c72;
@@ -42,9 +43,9 @@
         .outcomes-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             margin-bottom: 24px;
-            max-height: 500px;
+            max-height: 550px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -55,51 +56,71 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 12px;
-            padding: 10px 16px;
+            padding: 12px 18px;
             border: 1px solid #dee8e4;
         }
         .badge {
             background: #eef3f0;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #2b6b5c;
-            min-width: 70px;
+            min-width: 80px;
             text-align: center;
         }
-        .input-group {
-            flex: 2;
-            min-width: 120px;
-        }
-        .input-group label {
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: #6b9084;
-            display: block;
-            margin-bottom: 3px;
-        }
-        .coeff-input, .stake-input {
-            width: 100%;
+        .coeff-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             background: white;
             border: 1px solid #cbdcd6;
             border-radius: 60px;
-            padding: 10px 14px;
-            font-size: 0.95rem;
+            padding: 4px 12px;
+            flex: 2;
+            min-width: 140px;
+        }
+        .coeff-part {
+            width: 55px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 8px 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #1f3e38;
+        }
+        .coeff-part:first-child {
+            border-right: 1px solid #d0ded8;
+        }
+        .coeff-sep {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #8fafa4;
+        }
+        .stake-input {
+            flex: 2;
+            min-width: 130px;
+            background: white;
+            border: 1px solid #cbdcd6;
+            border-radius: 60px;
+            padding: 10px 16px;
+            font-size: 1rem;
             font-weight: 500;
             color: #1f3e38;
             outline: none;
         }
-        .coeff-input:focus, .stake-input:focus {
+        .stake-input:focus, .coeff-part:focus {
             border-color: #2c8b78;
-            box-shadow: 0 0 0 3px rgba(44, 139, 120, 0.1);
+            box-shadow: 0 0 0 2px rgba(44, 139, 120, 0.1);
         }
         .remove-btn {
             background: #f1f4f2;
             border: 1px solid #d4dfdb;
             border-radius: 50px;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             font-size: 1.2rem;
             font-weight: bold;
             color: #8faaa1;
@@ -176,12 +197,16 @@
             color: #90aba1;
             margin-top: 20px;
         }
+        @media (max-width: 600px) {
+            .coeff-group { min-width: 120px; }
+            .coeff-part { width: 45px; }
+        }
     </style>
 </head>
 <body>
 <div class="app">
-    <h1>⚡ Вилка-калькулятор</h1>
-    <div class="desc">Одинаковый выигрыш при любом исходе. Пиши КОЭФФИЦИЕНТЫ с ТОЧКОЙ или ЗАПЯТОЙ — всё работает. До 10 исходов.</div>
+    <h1>📐 КАЛЬКУЛЯТОР СТАВОК</h1>
+    <div class="desc">Одинаковый выигрыш при любом исходе. Коэффициент: целое число + десятичная часть (01, 06, 17, 99). Пример: 1 и 16 = 1.16</div>
 
     <div id="outcomesList" class="outcomes-list"></div>
 
@@ -196,9 +221,9 @@
         <div class="details" id="detailsDisplay">Выплата — | Сумма ставок —</div>
     </div>
     <div class="warning" id="warningMsg">
-        ✏️ Пиши коэффициент: 1.9 или 1,9 — запятая сама станет точкой. Сумму любую.
+        📌 Введи коэффициент в две клетки: целое (1..50) и десятичная часть (01..99). Сумму в рублях — любую.
     </div>
-    <footer>При изменении коэффициента или любой ставки — всё пересчитывается мгновенно.</footer>
+    <footer>Меняй любую сумму — остальные подстроятся под одинаковую выплату.</footer>
 </div>
 
 <script>
@@ -211,33 +236,44 @@
     const detailsSpan = document.getElementById('detailsDisplay');
     const warningSpan = document.getElementById('warningMsg');
 
-    // умный парсер: заменяет запятую на точку, убирает лишние символы
-    function smartParse(value) {
-        if (value === undefined || value === null) return NaN;
-        let str = String(value).trim();
-        // заменяем запятую на точку
-        str = str.replace(',', '.');
-        // оставляем только цифры и одну точку
-        let parts = str.split('.');
-        if (parts.length > 2) {
-            str = parts[0] + '.' + parts.slice(1).join('');
-        }
-        // убираем всё кроме цифр и точки
-        str = str.replace(/[^0-9.]/g, '');
-        if (str === '' || str === '.') return NaN;
-        let num = parseFloat(str);
-        return isNaN(num) ? NaN : num;
+    // склеиваем коэффициент из целой и десятичной части
+    function makeCoeff(integerPart, decimalPart) {
+        let intVal = parseInt(String(integerPart).replace(/\D/g, ''));
+        if (isNaN(intVal)) intVal = 1;
+        if (intVal < 1) intVal = 1;
+        if (intVal > 50) intVal = 50;
+        
+        let decStr = String(decimalPart).replace(/\D/g, '');
+        if (decStr === '') decStr = '00';
+        if (decStr.length === 1) decStr = '0' + decStr;
+        if (decStr.length > 2) decStr = decStr.slice(0,2);
+        let decVal = parseInt(decStr);
+        if (isNaN(decVal)) decVal = 0;
+        if (decVal > 99) decVal = 99;
+        
+        let full = intVal + decVal / 100;
+        if (full < 1.01) full = 1.01;
+        return full;
     }
 
-    // главный пересчёт от индекса, который изменили
+    // получить отображение для поля
+    function formatDecimalPart(val) {
+        let dec = Math.round((val - Math.floor(val)) * 100);
+        if (isNaN(dec)) dec = 0;
+        if (dec < 0) dec = 0;
+        if (dec > 99) dec = 99;
+        return dec.toString().padStart(2, '0');
+    }
+
+    // пересчёт от изменённого индекса
     function recalcFrom(changedIdx) {
         if (outcomes.length === 0) return;
 
-        // проверяем что коэффициенты > 1
+        // проверяем валидность коэффициентов
         for (let i = 0; i < outcomes.length; i++) {
             let c = outcomes[i].coeff;
             if (isNaN(c) || c <= 1) {
-                warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть больше 1 (сейчас ${isNaN(c) ? '?' : c.toFixed(2)})`;
+                warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть > 1 (сейчас ${isNaN(c) ? '?' : c.toFixed(2)})`;
                 profitSpan.innerText = `— ₽`;
                 detailsSpan.innerText = `Ошибка`;
                 return;
@@ -303,7 +339,7 @@
         detailsSpan.innerHTML = `🎯 При любом исходе выплата = ${targetPayout.toFixed(2)} ₽ | Всего поставлено = ${totalStaked.toFixed(2)} ₽`;
     }
 
-    // отрисовка всех строк
+    // отрисовка
     function render() {
         container.innerHTML = '';
         for (let i = 0; i < outcomes.length; i++) {
@@ -315,25 +351,41 @@
             badge.className = 'badge';
             badge.innerText = `Исход ${i+1}`;
 
+            // группа коэффициента (две клетки)
             const coeffGroup = document.createElement('div');
-            coeffGroup.className = 'input-group';
-            coeffGroup.innerHTML = `<label>КОЭФФИЦИЕНТ</label>`;
-            const coeffInput = document.createElement('input');
-            coeffInput.type = 'text';
-            coeffInput.inputMode = 'decimal';
-            coeffInput.value = out.coeff.toFixed(2);
-            coeffInput.className = 'coeff-input';
-            coeffGroup.appendChild(coeffInput);
+            coeffGroup.className = 'coeff-group';
+            
+            const intInput = document.createElement('input');
+            intInput.type = 'text';
+            intInput.inputMode = 'numeric';
+            intInput.className = 'coeff-part';
+            intInput.style.textAlign = 'right';
+            let intVal = Math.floor(out.coeff);
+            intInput.value = intVal;
+            
+            const sepSpan = document.createElement('span');
+            sepSpan.className = 'coeff-sep';
+            sepSpan.innerText = '•';
+            
+            const decInput = document.createElement('input');
+            decInput.type = 'text';
+            decInput.inputMode = 'numeric';
+            decInput.className = 'coeff-part';
+            decInput.style.textAlign = 'left';
+            let decStr = formatDecimalPart(out.coeff);
+            decInput.value = decStr;
+            
+            coeffGroup.appendChild(intInput);
+            coeffGroup.appendChild(sepSpan);
+            coeffGroup.appendChild(decInput);
 
-            const stakeGroup = document.createElement('div');
-            stakeGroup.className = 'input-group';
-            stakeGroup.innerHTML = `<label>СТАВКА (₽)</label>`;
+            // поле ставки
             const stakeInput = document.createElement('input');
             stakeInput.type = 'text';
             stakeInput.inputMode = 'decimal';
-            stakeInput.value = out.stake.toFixed(2);
             stakeInput.className = 'stake-input';
-            stakeGroup.appendChild(stakeInput);
+            stakeInput.value = out.stake.toFixed(2);
+            stakeInput.placeholder = "Сумма ₽";
 
             const removeBtn = document.createElement('button');
             removeBtn.innerText = '✕';
@@ -343,51 +395,50 @@
 
             row.appendChild(badge);
             row.appendChild(coeffGroup);
-            row.appendChild(stakeGroup);
+            row.appendChild(stakeInput);
             row.appendChild(removeBtn);
             container.appendChild(row);
 
-            out.coeffInput = coeffInput;
+            out.intInput = intInput;
+            out.decInput = decInput;
             out.stakeInput = stakeInput;
 
-            // обработчик для коэффициента — с поддержкой запятой и точки
-            coeffInput.oninput = (function(idx) {
-                return function(e) {
-                    let raw = e.target.value;
-                    let num = smartParse(raw);
-                    if (!isNaN(num) && num > 0) {
-                        if (num < 1) num = 1;
-                        outcomes[idx].coeff = num;
-                        coeffInput.value = num.toFixed(2);
-                    } else {
-                        // если юзер стирает всё — не трогаем пока
-                        if (raw !== '') {
-                            outcomes[idx].coeff = NaN;
-                        }
-                    }
-                    let curStake = outcomes[idx].stake;
-                    if (isNaN(curStake) || curStake <= 0) {
-                        curStake = 100;
-                        outcomes[idx].stake = 100;
-                        if (stakeInput) stakeInput.value = "100.00";
-                    }
-                    recalcFrom(idx);
-                };
-            })(i);
+            // функция обновления коэффициента из двух полей
+            const updateCoeffFromParts = (idx) => {
+                let intRaw = outcomes[idx].intInput.value;
+                let decRaw = outcomes[idx].decInput.value;
+                let newCoeff = makeCoeff(intRaw, decRaw);
+                outcomes[idx].coeff = newCoeff;
+                // обновляем отображение
+                let newInt = Math.floor(newCoeff);
+                let newDec = formatDecimalPart(newCoeff);
+                outcomes[idx].intInput.value = newInt;
+                outcomes[idx].decInput.value = newDec;
+                return newCoeff;
+            };
 
-            // обработчик для ставки — тоже с поддержкой
+            const onCoeffChange = (idx) => {
+                updateCoeffFromParts(idx);
+                let curStake = outcomes[idx].stake;
+                if (isNaN(curStake) || curStake <= 0) {
+                    curStake = 100;
+                    outcomes[idx].stake = 100;
+                    if (stakeInput) stakeInput.value = "100.00";
+                }
+                recalcFrom(idx);
+            };
+
+            intInput.oninput = () => onCoeffChange(i);
+            decInput.oninput = () => onCoeffChange(i);
+
             stakeInput.oninput = (function(idx) {
                 return function(e) {
-                    let raw = e.target.value;
-                    let num = smartParse(raw);
-                    if (!isNaN(num) && num >= 0) {
-                        outcomes[idx].stake = num;
-                        stakeInput.value = num.toFixed(2);
-                    } else {
-                        if (raw !== '') {
-                            outcomes[idx].stake = NaN;
-                        }
-                    }
+                    let raw = e.target.value.replace(',', '.');
+                    let num = parseFloat(raw);
+                    if (isNaN(num)) num = 0;
+                    if (num < 0) num = 0;
+                    outcomes[idx].stake = num;
+                    stakeInput.value = num.toFixed(2);
                     if (num <= 0) {
                         warningSpan.innerText = `Сумма должна быть больше 0`;
                         return;
@@ -425,7 +476,7 @@
         if (outcomes.length > 0 && outcomes[0].stake > 0 && outcomes[0].coeff > 0) {
             targetPayout = outcomes[0].stake * outcomes[0].coeff;
         }
-        const newCoeff = 2.0;
+        const newCoeff = 2.00;
         let newStake = targetPayout / newCoeff;
         if (isNaN(newStake) || newStake <= 0) newStake = 100;
 
