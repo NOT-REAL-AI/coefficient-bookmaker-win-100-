@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Калькулятор вилок | Белый и простой</title>
+    <title>Калькулятор вилок | Нормальный ввод</title>
     <style>
         * {
             box-sizing: border-box;
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
             background: #eef2f0;
             margin: 0;
@@ -19,7 +18,6 @@
             align-items: center;
             padding: 20px;
         }
-
         .app {
             max-width: 800px;
             width: 100%;
@@ -28,15 +26,12 @@
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
             padding: 28px 24px 32px;
         }
-
         h1 {
             font-size: 1.8rem;
             font-weight: 650;
             margin: 0 0 6px 0;
             color: #1c3b35;
-            letter-spacing: -0.3px;
         }
-
         .desc {
             color: #5f7c72;
             border-bottom: 1px solid #e0eae6;
@@ -44,15 +39,12 @@
             margin-bottom: 26px;
             font-size: 0.85rem;
         }
-
-        /* строки исходов */
         .outcomes-list {
             display: flex;
             flex-direction: column;
             gap: 16px;
             margin-bottom: 24px;
         }
-
         .outcome-row {
             background: #f9fbfa;
             border-radius: 28px;
@@ -63,7 +55,6 @@
             padding: 12px 18px;
             border: 1px solid #dee8e4;
         }
-
         .badge {
             background: #eef3f0;
             padding: 6px 14px;
@@ -74,21 +65,17 @@
             min-width: 80px;
             text-align: center;
         }
-
         .input-group {
             flex: 2;
             min-width: 130px;
         }
-
         .input-group label {
             font-size: 0.7rem;
             font-weight: 600;
             color: #6b9084;
             display: block;
             margin-bottom: 4px;
-            letter-spacing: 0.3px;
         }
-
         .coeff-input, .stake-input {
             width: 100%;
             background: white;
@@ -99,14 +86,11 @@
             font-weight: 500;
             color: #1f3e38;
             outline: none;
-            transition: 0.1s;
         }
-
         .coeff-input:focus, .stake-input:focus {
             border-color: #2c8b78;
             box-shadow: 0 0 0 3px rgba(44, 139, 120, 0.1);
         }
-
         .remove-btn {
             background: #f1f4f2;
             border: 1px solid #d4dfdb;
@@ -119,25 +103,20 @@
             cursor: pointer;
             flex-shrink: 0;
         }
-
         .remove-btn:hover:not(:disabled) {
             background: #ffe6e0;
             color: #d14334;
-            border-color: #f5bcb0;
         }
-
         .remove-btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
-
         .buttons {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
             margin: 8px 0 26px;
         }
-
         .btn {
             background: #f2f6f4;
             border: 1px solid #cfe0da;
@@ -148,18 +127,12 @@
             color: #235b4e;
             cursor: pointer;
         }
-
         .btn-primary {
             background: #eaf4f0;
             border-color: #c2dbd1;
             font-weight: 600;
             color: #1a6a58;
         }
-
-        .btn-primary:hover {
-            background: #e0f0ea;
-        }
-
         .result-box {
             background: #f5f9f7;
             border-radius: 28px;
@@ -168,27 +141,23 @@
             border: 1px solid #ddebe6;
             margin-top: 8px;
         }
-
         .profit {
             font-size: 2.3rem;
             font-weight: 800;
             color: #1c6e5c;
             line-height: 1.2;
         }
-
         .profit-label {
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 1.2px;
             color: #6f9589;
         }
-
         .details {
             font-size: 0.75rem;
             color: #54786c;
             margin-top: 10px;
         }
-
         .warning {
             background: #fff7e8;
             border-radius: 50px;
@@ -197,21 +166,22 @@
             color: #b7621a;
             text-align: center;
             margin-top: 16px;
-            border: 1px solid #ffeaae;
         }
-
         footer {
             font-size: 0.7rem;
             text-align: center;
             color: #90aba1;
             margin-top: 20px;
         }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body>
 <div class="app">
     <h1>⚡ Вилка-калькулятор</h1>
-    <div class="desc">Гарантированный одинаковый выигрыш. Коэффициенты пиши просто: 2.0 , 1.9 , 3.4 — никаких глюков. Меняй любую сумму.</div>
+    <div class="desc">Одинаковый выигрыш при любом исходе. Пиши коэффициенты как хочешь: 1.9, 2.5, 3.2 — никаких глюков.</div>
 
     <div id="outcomesList" class="outcomes-list"></div>
 
@@ -226,9 +196,9 @@
         <div class="details" id="detailsDisplay">Выплата — | Сумма ставок —</div>
     </div>
     <div class="warning" id="warningMsg">
-        ✏️ Пиши коэффициенты обычными числами (1.9 или 2.5). Ставки в рублях — любые. Второе поле подстроится.
+        ✏️ Пиши коэффициент обычными цифрами (1.9 или 2.5). Сумму любую — второе подстроится.
     </div>
-    <footer>При изменении коэффициента или любой ставки — всё пересчитывается для одинаковой выплаты.</footer>
+    <footer>При изменении коэффициента или любой ставки — всё пересчитывается.</footer>
 </div>
 
 <script>
@@ -241,47 +211,31 @@
     const detailsSpan = document.getElementById('detailsDisplay');
     const warningSpan = document.getElementById('warningMsg');
 
-    // ---- чистый парсер чисел (без ебаной магии с запятыми) ----
-    function parseNumber(value) {
-        if (value === undefined || value === null) return NaN;
-        let str = String(value).trim();
-        // заменяем запятую на точку (на всякий, но теперь говорим юзеру ставить точку)
-        str = str.replace(',', '.');
+    // чистый парсер числа (с телефона тоже норм)
+    function toNumber(val) {
+        if (val === undefined || val === null) return NaN;
+        let str = String(val).trim().replace(',', '.');
         let num = parseFloat(str);
         return isNaN(num) ? NaN : num;
     }
 
-    function getValidCoeff(val) {
-        let num = parseNumber(val);
-        if (isNaN(num)) return 1.5;
-        if (num < 1.01) return 1.01;
-        if (num > 50) return 50;
-        return num;
-    }
-
-    function getValidStake(val) {
-        let num = parseNumber(val);
-        if (isNaN(num)) return 0;
-        if (num < 0) return 0;
-        return num;
-    }
-
-    // главный пересчет от индекса, который поменяли (или сумма или коэф)
+    // главный пересчёт от индекса, который изменили
     function recalcFrom(changedIdx) {
         if (outcomes.length === 0) return;
 
-        // проверка коэффициентов > 1
+        // проверяем что коэффициенты > 1
         for (let i = 0; i < outcomes.length; i++) {
-            if (outcomes[i].coeff <= 1.001) {
-                warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть БОЛЬШЕ 1 (сейчас ${outcomes[i].coeff.toFixed(2)})`;
+            let c = outcomes[i].coeff;
+            if (isNaN(c) || c <= 1) {
+                warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть больше 1 (сейчас ${c})`;
                 profitSpan.innerText = `— ₽`;
-                detailsSpan.innerText = `Ошибка в коэф.`;
+                detailsSpan.innerText = `Ошибка`;
                 return;
             }
         }
 
         let baseStake = outcomes[changedIdx].stake;
-        if (baseStake <= 0 || isNaN(baseStake)) {
+        if (isNaN(baseStake) || baseStake <= 0) {
             warningSpan.innerText = `❌ Введи сумму больше 0 для исхода ${changedIdx+1}`;
             return;
         }
@@ -305,11 +259,11 @@
         }
 
         if (!ok) {
-            warningSpan.innerText = "Ошибка пересчёта, проверь коэффициенты";
+            warningSpan.innerText = "Ошибка пересчёта";
             return;
         }
 
-        // обновляем ставки в массиве и в инпутах
+        // обновляем ставки
         for (let i = 0; i < outcomes.length; i++) {
             if (i === changedIdx) continue;
             outcomes[i].stake = newStakes[i];
@@ -326,12 +280,12 @@
         if (netProfit < 0) {
             profitSpan.innerHTML = `⚠️ ${netProfit.toFixed(2)} ₽ (убыток)`;
             profitSpan.style.color = "#c25a3a";
-            warningSpan.innerHTML = `❗ Убыток: при таких коэффициентах одинаковый выигрыш даёт потерю. Измени коэффициенты (чтобы были выше).`;
+            warningSpan.innerHTML = `❗ Убыток: при таких коэффициентах одинаковый выигрыш даёт потерю.`;
         } else {
             profitSpan.innerHTML = `${netProfit.toFixed(2)} ₽`;
             profitSpan.style.color = "#1c6e5c";
             if (netProfit === 0) {
-                warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны или вилки нет). Любые ставки не дадут профита.`;
+                warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны).`;
             } else {
                 warningSpan.innerHTML = `✅ Гарантированная выплата: ${targetPayout.toFixed(2)} ₽ | Сумма ставок: ${totalStaked.toFixed(2)} ₽ | Чистыми: ${netProfit.toFixed(2)} ₽`;
             }
@@ -351,24 +305,22 @@
             badge.className = 'badge';
             badge.innerText = `Исход ${i+1}`;
 
-            // группа коэффициента
             const coeffGroup = document.createElement('div');
             coeffGroup.className = 'input-group';
             coeffGroup.innerHTML = `<label>КОЭФФИЦИЕНТ</label>`;
             const coeffInput = document.createElement('input');
-            coeffInput.type = 'number';
-            coeffInput.step = '0.01';
+            coeffInput.type = 'text';
+            coeffInput.inputMode = 'decimal';
             coeffInput.value = out.coeff;
             coeffInput.className = 'coeff-input';
             coeffGroup.appendChild(coeffInput);
 
-            // группа ставки
             const stakeGroup = document.createElement('div');
             stakeGroup.className = 'input-group';
             stakeGroup.innerHTML = `<label>СТАВКА (₽)</label>`;
             const stakeInput = document.createElement('input');
-            stakeInput.type = 'number';
-            stakeInput.step = '1';
+            stakeInput.type = 'text';
+            stakeInput.inputMode = 'decimal';
             stakeInput.value = out.stake;
             stakeInput.className = 'stake-input';
             stakeGroup.appendChild(stakeInput);
@@ -385,22 +337,23 @@
             row.appendChild(removeBtn);
             container.appendChild(row);
 
-            // сохраняем ссылки
             out.coeffInput = coeffInput;
             out.stakeInput = stakeInput;
 
-            // обработчики (простые, без глюков)
+            // обработчик для коэффициента — БЕЗ ПРЫЖКОВ
             coeffInput.oninput = (function(idx) {
                 return function(e) {
                     let raw = e.target.value;
-                    let num = parseFloat(raw);
-                    if (isNaN(num)) num = 1.5;
-                    if (num < 1.01) num = 1.01;
-                    outcomes[idx].coeff = num;
-                    coeffInput.value = num;
-                    // после смены коэф: пересчитаем от текущего индекса, используя его текущую ставку
+                    let num = toNumber(raw);
+                    if (!isNaN(num) && num > 0) {
+                        if (num < 1) num = 1;
+                        outcomes[idx].coeff = num;
+                        coeffInput.value = num;
+                    } else {
+                        outcomes[idx].coeff = NaN;
+                    }
                     let curStake = outcomes[idx].stake;
-                    if (curStake <= 0) {
+                    if (isNaN(curStake) || curStake <= 0) {
                         curStake = 100;
                         outcomes[idx].stake = 100;
                         if (stakeInput) stakeInput.value = 100;
@@ -409,16 +362,19 @@
                 };
             })(i);
 
+            // обработчик для ставки
             stakeInput.oninput = (function(idx) {
                 return function(e) {
                     let raw = e.target.value;
-                    let num = parseFloat(raw);
-                    if (isNaN(num)) num = 0;
-                    if (num < 0) num = 0;
-                    outcomes[idx].stake = num;
-                    stakeInput.value = num;
+                    let num = toNumber(raw);
+                    if (!isNaN(num) && num >= 0) {
+                        outcomes[idx].stake = num;
+                        stakeInput.value = num;
+                    } else {
+                        outcomes[idx].stake = NaN;
+                    }
                     if (num <= 0) {
-                        warningSpan.innerText = `Сумма ставки должна быть больше 0, чтобы построить вилку.`;
+                        warningSpan.innerText = `Сумма должна быть больше 0`;
                         return;
                     }
                     recalcFrom(idx);
@@ -433,7 +389,7 @@
                         render();
                         if (outcomes.length > 0) {
                             let firstIdx = 0;
-                            if (outcomes[firstIdx].stake <= 0) {
+                            if (isNaN(outcomes[firstIdx].stake) || outcomes[firstIdx].stake <= 0) {
                                 outcomes[firstIdx].stake = 100;
                                 if (outcomes[firstIdx].stakeInput) outcomes[firstIdx].stakeInput.value = 100;
                             }
@@ -445,10 +401,9 @@
         }
     }
 
-    // добавить исход
     function addOutcome() {
         if (outcomes.length >= MAX) {
-            warningSpan.innerText = `❌ Максимум ${MAX} исходов. Удали лишний.`;
+            warningSpan.innerText = `❌ Максимум ${MAX} исходов`;
             return;
         }
         let targetPayout = 200;
@@ -465,9 +420,8 @@
             stake: newStake,
         });
         render();
-        // пересчет от первого исхода (0)
         if (outcomes.length > 0) {
-            if (outcomes[0].stake <= 0) {
+            if (isNaN(outcomes[0].stake) || outcomes[0].stake <= 0) {
                 outcomes[0].stake = 100;
                 if (outcomes[0].stakeInput) outcomes[0].stakeInput.value = 100;
             }
@@ -475,7 +429,6 @@
         }
     }
 
-    // сброс до 2х исходов (2.0 и 2.5)
     function resetTwo() {
         outcomes = [];
         nextId = 0;
@@ -488,7 +441,6 @@
         recalcFrom(0);
     }
 
-    // инициализация
     function init() {
         outcomes = [];
         nextId = 0;
