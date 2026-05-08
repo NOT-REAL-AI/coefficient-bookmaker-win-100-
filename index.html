@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>КАЛЬКУЛЯТОР СТАВОК</title>
+    <title>КАЛЬКУЛЯТОР СТАВОК | ЦИФЕРБЛАТЫ</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,7 +19,7 @@
             padding: 20px;
         }
         .app {
-            max-width: 950px;
+            max-width: 1000px;
             width: 100%;
             background: white;
             border-radius: 40px;
@@ -71,16 +71,21 @@
         .coeff-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             background: white;
             border: 1px solid #cbdcd6;
             border-radius: 60px;
-            padding: 4px 16px;
+            padding: 4px 12px;
             flex: 2;
-            min-width: 160px;
+            min-width: 180px;
+        }
+        .coeff-part-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 2px;
         }
         .coeff-part {
-            width: 60px;
+            width: 55px;
             text-align: center;
             font-size: 1rem;
             font-weight: 600;
@@ -97,10 +102,51 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: #8fafa4;
+            margin: 0 2px;
+        }
+        .spin-btn {
+            background: #eef3f1;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #2b6b5c;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.1s;
+        }
+        .spin-btn:hover {
+            background: #d9e6e1;
+        }
+        .spin-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .spin-up, .spin-down {
+            background: #eef3f1;
+            border: none;
+            width: 24px;
+            height: 20px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #2b6b5c;
+        }
+        .stake-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 2;
+            min-width: 150px;
         }
         .stake-input {
-            flex: 2;
-            min-width: 130px;
+            flex: 1;
             background: white;
             border: 1px solid #cbdcd6;
             border-radius: 60px;
@@ -109,10 +155,6 @@
             font-weight: 500;
             color: #1f3e38;
             outline: none;
-        }
-        .stake-input:focus, .coeff-part:focus {
-            border-color: #2c8b78;
-            box-shadow: 0 0 0 2px rgba(44, 139, 120, 0.1);
         }
         .remove-btn {
             background: #f1f4f2;
@@ -196,16 +238,16 @@
             color: #90aba1;
             margin-top: 20px;
         }
-        @media (max-width: 650px) {
-            .coeff-group { min-width: 140px; }
-            .coeff-part { width: 50px; }
+        @media (max-width: 700px) {
+            .coeff-group { min-width: 160px; }
+            .coeff-part { width: 45px; }
         }
     </style>
 </head>
 <body>
 <div class="app">
     <h1>📐 КАЛЬКУЛЯТОР СТАВОК</h1>
-    <div class="desc">Одинаковый выигрыш при любом исходе. Коэффициент: левая клетка (1–100), правая клетка (01–99). Пример: 1 и 16 = 1.16. Ставки — целые рубли.</div>
+    <div class="desc">КРУТИ КОЛЁСИКО МЫШИ или жми стрелки — выбирай коэффициент легко. До 10 исходов.</div>
 
     <div id="outcomesList" class="outcomes-list"></div>
 
@@ -220,7 +262,7 @@
         <div class="details" id="detailsDisplay">Выплата — | Сумма ставок —</div>
     </div>
     <div class="warning" id="warningMsg">
-        📌 Коэффициент: целое (1–100) и сотые (01–99). Ставка — целое число рублей.
+        🖱️ КРУТИ КОЛЁСИКО МЫШИ на любой цифре — коэффициент меняется. Или жми стрелки вверх/вниз.
     </div>
     <footer>Меняй любую сумму — остальные подстроятся под одинаковую выплату.</footer>
 </div>
@@ -235,7 +277,6 @@
     const detailsSpan = document.getElementById('detailsDisplay');
     const warningSpan = document.getElementById('warningMsg');
 
-    // склейка коэффициента: целое 1-100, десятичная часть 0-99
     function makeCoeff(integerPart, decimalPart) {
         let intVal = parseInt(String(integerPart).replace(/\D/g, ''));
         if (isNaN(intVal)) intVal = 1;
@@ -255,7 +296,6 @@
         return full;
     }
 
-    // форматирование десятичной части для отображения
     function formatDecimalPart(coeff) {
         let dec = Math.round((coeff - Math.floor(coeff)) * 100);
         if (isNaN(dec)) dec = 0;
@@ -264,15 +304,13 @@
         return dec.toString().padStart(2, '0');
     }
 
-    // пересчёт от изменённого индекса
     function recalcFrom(changedIdx) {
         if (outcomes.length === 0) return;
 
-        // проверяем коэффициенты
         for (let i = 0; i < outcomes.length; i++) {
             let c = outcomes[i].coeff;
             if (isNaN(c) || c <= 1) {
-                warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть > 1 (сейчас ${isNaN(c) ? '?' : c.toFixed(2)})`;
+                warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть > 1`;
                 profitSpan.innerText = `— ₽`;
                 detailsSpan.innerText = `Ошибка`;
                 return;
@@ -308,7 +346,6 @@
             return;
         }
 
-        // обновляем ставки (округляем до целых, как просил — рубли без копеек)
         for (let i = 0; i < outcomes.length; i++) {
             if (i === changedIdx) continue;
             outcomes[i].stake = Math.round(newStakes[i]);
@@ -331,7 +368,7 @@
             profitSpan.innerHTML = `${netProfit.toFixed(2)} ₽`;
             profitSpan.style.color = "#1c6e5c";
             if (netProfit === 0) {
-                warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны или почти равны).`;
+                warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны).`;
             } else {
                 warningSpan.innerHTML = `✅ Выплата: ${Math.round(targetPayout)} ₽ | Ставок: ${totalStaked} ₽ | Чистыми: ${netProfit.toFixed(2)} ₽`;
             }
@@ -339,7 +376,6 @@
         detailsSpan.innerHTML = `🎯 Любой исход даёт выплату ${Math.round(targetPayout)} ₽ | Всего поставлено = ${totalStaked} ₽`;
     }
 
-    // отрисовка
     function render() {
         container.innerHTML = '';
         for (let i = 0; i < outcomes.length; i++) {
@@ -351,41 +387,96 @@
             badge.className = 'badge';
             badge.innerText = `Исход ${i+1}`;
 
-            // группа коэффициента (две клетки)
+            // ------ КОЭФФИЦИЕНТ С ДВУМЯ КРУТИЛКАМИ ------
             const coeffGroup = document.createElement('div');
             coeffGroup.className = 'coeff-group';
+            
+            // Целая часть + спиннер
+            const intWrapper = document.createElement('div');
+            intWrapper.style.display = 'flex';
+            intWrapper.style.alignItems = 'center';
+            intWrapper.style.gap = '4px';
             
             const intInput = document.createElement('input');
             intInput.type = 'text';
             intInput.inputMode = 'numeric';
             intInput.className = 'coeff-part';
-            intInput.style.textAlign = 'right';
+            intInput.style.width = '55px';
+            intInput.style.textAlign = 'center';
             let intVal = Math.floor(out.coeff);
             intInput.value = intVal;
+            
+            const intSpinGroup = document.createElement('div');
+            intSpinGroup.className = 'spin-group';
+            const intUp = document.createElement('button');
+            intUp.textContent = '▲';
+            intUp.className = 'spin-up';
+            const intDown = document.createElement('button');
+            intDown.textContent = '▼';
+            intDown.className = 'spin-down';
+            intSpinGroup.appendChild(intUp);
+            intSpinGroup.appendChild(intDown);
+            intWrapper.appendChild(intInput);
+            intWrapper.appendChild(intSpinGroup);
             
             const sepSpan = document.createElement('span');
             sepSpan.className = 'coeff-sep';
             sepSpan.innerText = '.';
             
+            // Десятичная часть + спиннер
+            const decWrapper = document.createElement('div');
+            decWrapper.style.display = 'flex';
+            decWrapper.style.alignItems = 'center';
+            decWrapper.style.gap = '4px';
+            
             const decInput = document.createElement('input');
             decInput.type = 'text';
             decInput.inputMode = 'numeric';
             decInput.className = 'coeff-part';
-            decInput.style.textAlign = 'left';
+            decInput.style.width = '55px';
+            decInput.style.textAlign = 'center';
             let decStr = formatDecimalPart(out.coeff);
             decInput.value = decStr;
             
-            coeffGroup.appendChild(intInput);
+            const decSpinGroup = document.createElement('div');
+            decSpinGroup.className = 'spin-group';
+            const decUp = document.createElement('button');
+            decUp.textContent = '▲';
+            decUp.className = 'spin-up';
+            const decDown = document.createElement('button');
+            decDown.textContent = '▼';
+            decDown.className = 'spin-down';
+            decSpinGroup.appendChild(decUp);
+            decSpinGroup.appendChild(decDown);
+            decWrapper.appendChild(decInput);
+            decWrapper.appendChild(decSpinGroup);
+            
+            coeffGroup.appendChild(intWrapper);
             coeffGroup.appendChild(sepSpan);
-            coeffGroup.appendChild(decInput);
+            coeffGroup.appendChild(decWrapper);
 
-            // поле ставки (целые рубли)
+            // ------ СТАВКА С КРУТИЛКОЙ ------
+            const stakeWrapper = document.createElement('div');
+            stakeWrapper.className = 'stake-wrapper';
+            
             const stakeInput = document.createElement('input');
             stakeInput.type = 'text';
             stakeInput.inputMode = 'numeric';
             stakeInput.className = 'stake-input';
             stakeInput.value = Math.round(out.stake);
-            stakeInput.placeholder = "Сумма ₽";
+            
+            const stakeSpinGroup = document.createElement('div');
+            stakeSpinGroup.className = 'spin-group';
+            const stakeUp = document.createElement('button');
+            stakeUp.textContent = '▲';
+            stakeUp.className = 'spin-up';
+            const stakeDown = document.createElement('button');
+            stakeDown.textContent = '▼';
+            stakeDown.className = 'spin-down';
+            stakeSpinGroup.appendChild(stakeUp);
+            stakeSpinGroup.appendChild(stakeDown);
+            stakeWrapper.appendChild(stakeInput);
+            stakeWrapper.appendChild(stakeSpinGroup);
 
             const removeBtn = document.createElement('button');
             removeBtn.innerText = '✕';
@@ -395,7 +486,7 @@
 
             row.appendChild(badge);
             row.appendChild(coeffGroup);
-            row.appendChild(stakeInput);
+            row.appendChild(stakeWrapper);
             row.appendChild(removeBtn);
             container.appendChild(row);
 
@@ -403,50 +494,105 @@
             out.decInput = decInput;
             out.stakeInput = stakeInput;
 
-            // обновление коэффициента из двух полей
-            const updateCoeffFromParts = (idx) => {
-                let intRaw = outcomes[idx].intInput.value;
-                let decRaw = outcomes[idx].decInput.value;
-                let newCoeff = makeCoeff(intRaw, decRaw);
-                outcomes[idx].coeff = newCoeff;
-                // обновляем отображение
-                let newInt = Math.floor(newCoeff);
-                let newDec = formatDecimalPart(newCoeff);
-                outcomes[idx].intInput.value = newInt;
-                outcomes[idx].decInput.value = newDec;
-                return newCoeff;
-            };
-
-            const onCoeffChange = (idx) => {
-                updateCoeffFromParts(idx);
-                let curStake = outcomes[idx].stake;
+            // Функция обновления коэффа
+            const updateCoeff = () => {
+                let newCoeff = makeCoeff(intInput.value, decInput.value);
+                out.coeff = newCoeff;
+                intInput.value = Math.floor(newCoeff);
+                decInput.value = formatDecimalPart(newCoeff);
+                let curStake = out.stake;
                 if (isNaN(curStake) || curStake <= 0) {
                     curStake = 100;
-                    outcomes[idx].stake = 100;
-                    if (stakeInput) stakeInput.value = "100";
+                    out.stake = 100;
+                    stakeInput.value = "100";
                 }
-                recalcFrom(idx);
+                recalcFrom(i);
             };
 
-            intInput.oninput = () => onCoeffChange(i);
-            decInput.oninput = () => onCoeffChange(i);
+            // Обработчики для целой части
+            intInput.oninput = updateCoeff;
+            intUp.onclick = () => {
+                let val = parseInt(intInput.value) || 1;
+                if (val < 100) intInput.value = val + 1;
+                updateCoeff();
+            };
+            intDown.onclick = () => {
+                let val = parseInt(intInput.value) || 1;
+                if (val > 1) intInput.value = val - 1;
+                updateCoeff();
+            };
+            intInput.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                let delta = e.deltaY > 0 ? -1 : 1;
+                let val = parseInt(intInput.value) || 1;
+                let newVal = val + delta;
+                if (newVal >= 1 && newVal <= 100) intInput.value = newVal;
+                updateCoeff();
+            });
 
-            // ставка — только целые числа, без запятых
-            stakeInput.oninput = (function(idx) {
-                return function(e) {
-                    let raw = e.target.value.replace(/\D/g, '');
-                    if (raw === '') raw = '0';
-                    let num = parseInt(raw, 10);
-                    if (isNaN(num)) num = 0;
-                    outcomes[idx].stake = num;
-                    stakeInput.value = num;
-                    if (num <= 0) {
-                        warningSpan.innerText = `Сумма должна быть больше 0`;
-                        return;
-                    }
-                    recalcFrom(idx);
-                };
-            })(i);
+            // Обработчики для десятичной части
+            decInput.oninput = updateCoeff;
+            decUp.onclick = () => {
+                let val = parseInt(decInput.value) || 0;
+                if (val < 99) {
+                    let newVal = val + 1;
+                    decInput.value = newVal.toString().padStart(2, '0');
+                }
+                updateCoeff();
+            };
+            decDown.onclick = () => {
+                let val = parseInt(decInput.value) || 0;
+                if (val > 0) {
+                    let newVal = val - 1;
+                    decInput.value = newVal.toString().padStart(2, '0');
+                }
+                updateCoeff();
+            };
+            decInput.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                let delta = e.deltaY > 0 ? -1 : 1;
+                let val = parseInt(decInput.value) || 0;
+                let newVal = val + delta;
+                if (newVal >= 0 && newVal <= 99) {
+                    decInput.value = newVal.toString().padStart(2, '0');
+                    updateCoeff();
+                }
+            });
+
+            // Обработчики для ставки
+            const updateStake = () => {
+                let val = parseInt(stakeInput.value) || 0;
+                if (val < 0) val = 0;
+                out.stake = val;
+                stakeInput.value = val;
+                if (val > 0) recalcFrom(i);
+                else warningSpan.innerText = `Сумма должна быть больше 0`;
+            };
+            stakeInput.oninput = () => {
+                let val = parseInt(stakeInput.value.replace(/\D/g, '')) || 0;
+                stakeInput.value = val;
+                updateStake();
+            };
+            stakeUp.onclick = () => {
+                let val = parseInt(stakeInput.value) || 0;
+                stakeInput.value = val + 10;
+                updateStake();
+            };
+            stakeDown.onclick = () => {
+                let val = parseInt(stakeInput.value) || 0;
+                if (val >= 10) stakeInput.value = val - 10;
+                else if (val > 0) stakeInput.value = 0;
+                updateStake();
+            };
+            stakeInput.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                let delta = e.deltaY > 0 ? -10 : 10;
+                let val = parseInt(stakeInput.value) || 0;
+                let newVal = val + delta;
+                if (newVal < 0) newVal = 0;
+                stakeInput.value = newVal;
+                updateStake();
+            });
 
             if (removeBtn && !removeBtn.disabled) {
                 removeBtn.onclick = (function(idx) {
@@ -470,7 +616,7 @@
 
     function addOutcome() {
         if (outcomes.length >= MAX) {
-            warningSpan.innerText = `❌ Максимум ${MAX} исходов. Удали лишний.`;
+            warningSpan.innerText = `❌ Максимум ${MAX} исходов`;
             return;
         }
         let targetPayout = 200;
@@ -525,4 +671,4 @@
     init();
 </script>
 </body>
-</html>
+</html>х
