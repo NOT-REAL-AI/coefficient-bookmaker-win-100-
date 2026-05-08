@@ -19,7 +19,7 @@
             padding: 20px;
         }
         .app {
-            max-width: 900px;
+            max-width: 950px;
             width: 100%;
             background: white;
             border-radius: 40px;
@@ -31,7 +31,6 @@
             font-weight: 700;
             margin: 0 0 6px 0;
             color: #1c3b35;
-            letter-spacing: -0.5px;
         }
         .desc {
             color: #5f7c72;
@@ -72,20 +71,20 @@
         .coeff-group {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             background: white;
             border: 1px solid #cbdcd6;
             border-radius: 60px;
-            padding: 4px 12px;
+            padding: 4px 16px;
             flex: 2;
-            min-width: 140px;
+            min-width: 160px;
         }
         .coeff-part {
-            width: 55px;
+            width: 60px;
             text-align: center;
             font-size: 1rem;
             font-weight: 600;
-            padding: 8px 0;
+            padding: 10px 0;
             border: none;
             outline: none;
             background: transparent;
@@ -197,16 +196,16 @@
             color: #90aba1;
             margin-top: 20px;
         }
-        @media (max-width: 600px) {
-            .coeff-group { min-width: 120px; }
-            .coeff-part { width: 45px; }
+        @media (max-width: 650px) {
+            .coeff-group { min-width: 140px; }
+            .coeff-part { width: 50px; }
         }
     </style>
 </head>
 <body>
 <div class="app">
     <h1>📐 КАЛЬКУЛЯТОР СТАВОК</h1>
-    <div class="desc">Одинаковый выигрыш при любом исходе. Коэффициент: целое число + десятичная часть (01, 06, 17, 99). Пример: 1 и 16 = 1.16</div>
+    <div class="desc">Одинаковый выигрыш при любом исходе. Коэффициент: левая клетка (1–100), правая клетка (01–99). Пример: 1 и 16 = 1.16. Ставки — целые рубли.</div>
 
     <div id="outcomesList" class="outcomes-list"></div>
 
@@ -221,7 +220,7 @@
         <div class="details" id="detailsDisplay">Выплата — | Сумма ставок —</div>
     </div>
     <div class="warning" id="warningMsg">
-        📌 Введи коэффициент в две клетки: целое (1..50) и десятичная часть (01..99). Сумму в рублях — любую.
+        📌 Коэффициент: целое (1–100) и сотые (01–99). Ставка — целое число рублей.
     </div>
     <footer>Меняй любую сумму — остальные подстроятся под одинаковую выплату.</footer>
 </div>
@@ -236,12 +235,12 @@
     const detailsSpan = document.getElementById('detailsDisplay');
     const warningSpan = document.getElementById('warningMsg');
 
-    // склеиваем коэффициент из целой и десятичной части
+    // склейка коэффициента: целое 1-100, десятичная часть 0-99
     function makeCoeff(integerPart, decimalPart) {
         let intVal = parseInt(String(integerPart).replace(/\D/g, ''));
         if (isNaN(intVal)) intVal = 1;
         if (intVal < 1) intVal = 1;
-        if (intVal > 50) intVal = 50;
+        if (intVal > 100) intVal = 100;
         
         let decStr = String(decimalPart).replace(/\D/g, '');
         if (decStr === '') decStr = '00';
@@ -256,9 +255,9 @@
         return full;
     }
 
-    // получить отображение для поля
-    function formatDecimalPart(val) {
-        let dec = Math.round((val - Math.floor(val)) * 100);
+    // форматирование десятичной части для отображения
+    function formatDecimalPart(coeff) {
+        let dec = Math.round((coeff - Math.floor(coeff)) * 100);
         if (isNaN(dec)) dec = 0;
         if (dec < 0) dec = 0;
         if (dec > 99) dec = 99;
@@ -269,7 +268,7 @@
     function recalcFrom(changedIdx) {
         if (outcomes.length === 0) return;
 
-        // проверяем валидность коэффициентов
+        // проверяем коэффициенты
         for (let i = 0; i < outcomes.length; i++) {
             let c = outcomes[i].coeff;
             if (isNaN(c) || c <= 1) {
@@ -309,19 +308,20 @@
             return;
         }
 
-        // обновляем ставки
+        // обновляем ставки (округляем до целых, как просил — рубли без копеек)
         for (let i = 0; i < outcomes.length; i++) {
             if (i === changedIdx) continue;
-            outcomes[i].stake = newStakes[i];
+            outcomes[i].stake = Math.round(newStakes[i]);
             if (outcomes[i].stakeInput) {
-                outcomes[i].stakeInput.value = newStakes[i].toFixed(2);
+                outcomes[i].stakeInput.value = outcomes[i].stake;
             }
         }
 
         let totalStaked = 0;
         for (let i = 0; i < outcomes.length; i++) totalStaked += outcomes[i].stake;
         let netProfit = targetPayout - totalStaked;
-        if (Math.abs(netProfit) < 0.009) netProfit = 0;
+        if (Math.abs(netProfit) < 0.5) netProfit = 0;
+        netProfit = Math.round(netProfit * 100) / 100;
 
         if (netProfit < 0) {
             profitSpan.innerHTML = `⚠️ ${netProfit.toFixed(2)} ₽ (убыток)`;
@@ -333,10 +333,10 @@
             if (netProfit === 0) {
                 warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны или почти равны).`;
             } else {
-                warningSpan.innerHTML = `✅ Гарантированная выплата: ${targetPayout.toFixed(2)} ₽ | Сумма ставок: ${totalStaked.toFixed(2)} ₽ | Чистыми: ${netProfit.toFixed(2)} ₽`;
+                warningSpan.innerHTML = `✅ Выплата: ${Math.round(targetPayout)} ₽ | Ставок: ${totalStaked} ₽ | Чистыми: ${netProfit.toFixed(2)} ₽`;
             }
         }
-        detailsSpan.innerHTML = `🎯 При любом исходе выплата = ${targetPayout.toFixed(2)} ₽ | Всего поставлено = ${totalStaked.toFixed(2)} ₽`;
+        detailsSpan.innerHTML = `🎯 Любой исход даёт выплату ${Math.round(targetPayout)} ₽ | Всего поставлено = ${totalStaked} ₽`;
     }
 
     // отрисовка
@@ -365,7 +365,7 @@
             
             const sepSpan = document.createElement('span');
             sepSpan.className = 'coeff-sep';
-            sepSpan.innerText = '•';
+            sepSpan.innerText = '.';
             
             const decInput = document.createElement('input');
             decInput.type = 'text';
@@ -379,12 +379,12 @@
             coeffGroup.appendChild(sepSpan);
             coeffGroup.appendChild(decInput);
 
-            // поле ставки
+            // поле ставки (целые рубли)
             const stakeInput = document.createElement('input');
             stakeInput.type = 'text';
-            stakeInput.inputMode = 'decimal';
+            stakeInput.inputMode = 'numeric';
             stakeInput.className = 'stake-input';
-            stakeInput.value = out.stake.toFixed(2);
+            stakeInput.value = Math.round(out.stake);
             stakeInput.placeholder = "Сумма ₽";
 
             const removeBtn = document.createElement('button');
@@ -403,7 +403,7 @@
             out.decInput = decInput;
             out.stakeInput = stakeInput;
 
-            // функция обновления коэффициента из двух полей
+            // обновление коэффициента из двух полей
             const updateCoeffFromParts = (idx) => {
                 let intRaw = outcomes[idx].intInput.value;
                 let decRaw = outcomes[idx].decInput.value;
@@ -423,7 +423,7 @@
                 if (isNaN(curStake) || curStake <= 0) {
                     curStake = 100;
                     outcomes[idx].stake = 100;
-                    if (stakeInput) stakeInput.value = "100.00";
+                    if (stakeInput) stakeInput.value = "100";
                 }
                 recalcFrom(idx);
             };
@@ -431,14 +431,15 @@
             intInput.oninput = () => onCoeffChange(i);
             decInput.oninput = () => onCoeffChange(i);
 
+            // ставка — только целые числа, без запятых
             stakeInput.oninput = (function(idx) {
                 return function(e) {
-                    let raw = e.target.value.replace(',', '.');
-                    let num = parseFloat(raw);
+                    let raw = e.target.value.replace(/\D/g, '');
+                    if (raw === '') raw = '0';
+                    let num = parseInt(raw, 10);
                     if (isNaN(num)) num = 0;
-                    if (num < 0) num = 0;
                     outcomes[idx].stake = num;
-                    stakeInput.value = num.toFixed(2);
+                    stakeInput.value = num;
                     if (num <= 0) {
                         warningSpan.innerText = `Сумма должна быть больше 0`;
                         return;
@@ -457,7 +458,7 @@
                             let firstIdx = 0;
                             if (isNaN(outcomes[firstIdx].stake) || outcomes[firstIdx].stake <= 0) {
                                 outcomes[firstIdx].stake = 100;
-                                if (outcomes[firstIdx].stakeInput) outcomes[firstIdx].stakeInput.value = "100.00";
+                                if (outcomes[firstIdx].stakeInput) outcomes[firstIdx].stakeInput.value = "100";
                             }
                             recalcFrom(firstIdx);
                         }
@@ -477,7 +478,7 @@
             targetPayout = outcomes[0].stake * outcomes[0].coeff;
         }
         const newCoeff = 2.00;
-        let newStake = targetPayout / newCoeff;
+        let newStake = Math.round(targetPayout / newCoeff);
         if (isNaN(newStake) || newStake <= 0) newStake = 100;
 
         outcomes.push({
@@ -489,7 +490,7 @@
         if (outcomes.length > 0) {
             if (isNaN(outcomes[0].stake) || outcomes[0].stake <= 0) {
                 outcomes[0].stake = 100;
-                if (outcomes[0].stakeInput) outcomes[0].stakeInput.value = "100.00";
+                if (outcomes[0].stakeInput) outcomes[0].stakeInput.value = "100";
             }
             recalcFrom(0);
         }
@@ -501,9 +502,9 @@
         outcomes.push({ id: nextId++, coeff: 2.00, stake: 1000 });
         outcomes.push({ id: nextId++, coeff: 2.50, stake: 0 });
         render();
-        let s2 = (1000 * 2.00) / 2.50;
+        let s2 = Math.round((1000 * 2.00) / 2.50);
         outcomes[1].stake = s2;
-        if (outcomes[1].stakeInput) outcomes[1].stakeInput.value = s2.toFixed(2);
+        if (outcomes[1].stakeInput) outcomes[1].stakeInput.value = s2;
         recalcFrom(0);
     }
 
@@ -513,9 +514,9 @@
         outcomes.push({ id: nextId++, coeff: 2.00, stake: 1000 });
         outcomes.push({ id: nextId++, coeff: 2.50, stake: 800 });
         render();
-        let second = (1000 * 2.00) / 2.50;
+        let second = Math.round((1000 * 2.00) / 2.50);
         outcomes[1].stake = second;
-        if (outcomes[1].stakeInput) outcomes[1].stakeInput.value = second.toFixed(2);
+        if (outcomes[1].stakeInput) outcomes[1].stakeInput.value = second;
         recalcFrom(0);
     }
 
