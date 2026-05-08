@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>КАЛЬКУЛЯТОР СТАВОК | ЦИФЕРБЛАТЫ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>КАЛЬКУЛЯТОР СТАВОК | КОЛЕСО ВЫБОРА</title>
     <style>
         * {
             box-sizing: border-box;
@@ -44,7 +44,7 @@
             flex-direction: column;
             gap: 14px;
             margin-bottom: 24px;
-            max-height: 550px;
+            max-height: 500px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -71,90 +71,46 @@
         .coeff-group {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             background: white;
             border: 1px solid #cbdcd6;
             border-radius: 60px;
-            padding: 4px 12px;
+            padding: 6px 16px;
             flex: 2;
             min-width: 180px;
-        }
-        .coeff-part-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-        .coeff-part {
-            width: 55px;
-            text-align: center;
-            font-size: 1rem;
-            font-weight: 600;
-            padding: 10px 0;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: #1f3e38;
-        }
-        .coeff-part:first-child {
-            border-right: 1px solid #d0ded8;
-        }
-        .coeff-sep {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #8fafa4;
-            margin: 0 2px;
-        }
-        .spin-btn {
-            background: #eef3f1;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: #2b6b5c;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             transition: 0.1s;
         }
-        .spin-btn:hover {
-            background: #d9e6e1;
-        }
-        .spin-group {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .spin-up, .spin-down {
+        .coeff-group:active {
             background: #eef3f1;
+        }
+        .coeff-part {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f3e38;
+            padding: 8px 0;
+            background: transparent;
             border: none;
-            width: 24px;
-            height: 20px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            color: #2b6b5c;
+            text-align: center;
+            pointer-events: none;
         }
-        .stake-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .coeff-sep {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #8fafa4;
+        }
+        .stake-field {
             flex: 2;
-            min-width: 150px;
-        }
-        .stake-input {
-            flex: 1;
+            min-width: 140px;
             background: white;
             border: 1px solid #cbdcd6;
             border-radius: 60px;
-            padding: 10px 16px;
+            padding: 12px 18px;
             font-size: 1rem;
             font-weight: 500;
             color: #1f3e38;
-            outline: none;
+            text-align: center;
+            cursor: pointer;
         }
         .remove-btn {
             background: #f1f4f2;
@@ -238,16 +194,87 @@
             color: #90aba1;
             margin-top: 20px;
         }
-        @media (max-width: 700px) {
-            .coeff-group { min-width: 160px; }
-            .coeff-part { width: 45px; }
+
+        /* Стили для колеса выбора (picker) */
+        .picker-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .picker-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .picker-container {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        .picker-overlay.active .picker-container {
+            transform: translateY(0);
+        }
+        .picker-header {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        .picker-cancel, .picker-done {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c8b78;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .picker-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .picker-wheel-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px 0;
+        }
+        .wheel {
+            text-align: center;
+        }
+        .wheel select {
+            width: 100px;
+            padding: 15px 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid #cbdcd6;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+        }
+        @media (max-width: 500px) {
+            .wheel select { width: 70px; font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 <div class="app">
     <h1>📐 КАЛЬКУЛЯТОР СТАВОК</h1>
-    <div class="desc">КРУТИ КОЛЁСИКО МЫШИ или жми стрелки — выбирай коэффициент легко. До 10 исходов.</div>
+    <div class="desc">Нажми на коэффициент или сумму — появится колесо выбора. Крути и выбирай нужное число.</div>
 
     <div id="outcomesList" class="outcomes-list"></div>
 
@@ -262,9 +289,21 @@
         <div class="details" id="detailsDisplay">Выплата — | Сумма ставок —</div>
     </div>
     <div class="warning" id="warningMsg">
-        🖱️ КРУТИ КОЛЁСИКО МЫШИ на любой цифре — коэффициент меняется. Или жми стрелки вверх/вниз.
+        🖱️ Нажми на КОЭФФИЦИЕНТ (например 2.00) или на СУММУ — появится колесо выбора. Крути и выбирай!
     </div>
     <footer>Меняй любую сумму — остальные подстроятся под одинаковую выплату.</footer>
+</div>
+
+<!-- Колесо выбора -->
+<div id="pickerOverlay" class="picker-overlay">
+    <div class="picker-container">
+        <div class="picker-header">
+            <button class="picker-cancel" id="pickerCancel">Отмена</button>
+            <span class="picker-title" id="pickerTitle">Выберите значение</span>
+            <button class="picker-done" id="pickerDone">Готово</button>
+        </div>
+        <div id="pickerWheels" class="picker-wheel-container"></div>
+    </div>
 </div>
 
 <script>
@@ -272,25 +311,28 @@
     let nextId = 0;
     const MAX = 10;
 
+    let activePicker = null; // { type, outcomeIdx, part }
+    let tempIntValue = 1;
+    let tempDecValue = 0;
+    let tempStakeValue = 100;
+
     const container = document.getElementById('outcomesList');
     const profitSpan = document.getElementById('profitDisplay');
     const detailsSpan = document.getElementById('detailsDisplay');
     const warningSpan = document.getElementById('warningMsg');
+    const pickerOverlay = document.getElementById('pickerOverlay');
+    const pickerCancel = document.getElementById('pickerCancel');
+    const pickerDone = document.getElementById('pickerDone');
+    const pickerTitle = document.getElementById('pickerTitle');
+    const pickerWheels = document.getElementById('pickerWheels');
 
     function makeCoeff(integerPart, decimalPart) {
-        let intVal = parseInt(String(integerPart).replace(/\D/g, ''));
-        if (isNaN(intVal)) intVal = 1;
+        let intVal = integerPart;
         if (intVal < 1) intVal = 1;
         if (intVal > 100) intVal = 100;
-        
-        let decStr = String(decimalPart).replace(/\D/g, '');
-        if (decStr === '') decStr = '00';
-        if (decStr.length === 1) decStr = '0' + decStr;
-        if (decStr.length > 2) decStr = decStr.slice(0,2);
-        let decVal = parseInt(decStr);
-        if (isNaN(decVal)) decVal = 0;
+        let decVal = decimalPart;
+        if (decVal < 0) decVal = 0;
         if (decVal > 99) decVal = 99;
-        
         let full = intVal + decVal / 100;
         if (full < 1.01) full = 1.01;
         return full;
@@ -301,31 +343,25 @@
         if (isNaN(dec)) dec = 0;
         if (dec < 0) dec = 0;
         if (dec > 99) dec = 99;
-        return dec.toString().padStart(2, '0');
+        return dec;
     }
 
     function recalcFrom(changedIdx) {
         if (outcomes.length === 0) return;
-
         for (let i = 0; i < outcomes.length; i++) {
             let c = outcomes[i].coeff;
             if (isNaN(c) || c <= 1) {
                 warningSpan.innerText = `⚠️ Коэффициент исхода ${i+1} должен быть > 1`;
-                profitSpan.innerText = `— ₽`;
-                detailsSpan.innerText = `Ошибка`;
                 return;
             }
         }
-
         let baseStake = outcomes[changedIdx].stake;
         if (isNaN(baseStake) || baseStake <= 0) {
             warningSpan.innerText = `❌ Введи сумму больше 0 для исхода ${changedIdx+1}`;
             return;
         }
-
         let targetPayout = baseStake * outcomes[changedIdx].coeff;
         if (targetPayout <= 0) return;
-
         let newStakes = [];
         let ok = true;
         for (let i = 0; i < outcomes.length; i++) {
@@ -334,32 +370,20 @@
                 continue;
             }
             let needed = targetPayout / outcomes[i].coeff;
-            if (needed < 0 || !isFinite(needed)) {
-                ok = false;
-                break;
-            }
+            if (needed < 0 || !isFinite(needed)) { ok = false; break; }
             newStakes[i] = needed;
         }
-
-        if (!ok) {
-            warningSpan.innerText = "Ошибка пересчёта";
-            return;
-        }
-
+        if (!ok) { warningSpan.innerText = "Ошибка пересчёта"; return; }
         for (let i = 0; i < outcomes.length; i++) {
             if (i === changedIdx) continue;
             outcomes[i].stake = Math.round(newStakes[i]);
-            if (outcomes[i].stakeInput) {
-                outcomes[i].stakeInput.value = outcomes[i].stake;
-            }
+            if (outcomes[i].stakeDisplay) outcomes[i].stakeDisplay.innerText = outcomes[i].stake;
         }
-
         let totalStaked = 0;
         for (let i = 0; i < outcomes.length; i++) totalStaked += outcomes[i].stake;
         let netProfit = targetPayout - totalStaked;
         if (Math.abs(netProfit) < 0.5) netProfit = 0;
         netProfit = Math.round(netProfit * 100) / 100;
-
         if (netProfit < 0) {
             profitSpan.innerHTML = `⚠️ ${netProfit.toFixed(2)} ₽ (убыток)`;
             profitSpan.style.color = "#c25a3a";
@@ -367,14 +391,103 @@
         } else {
             profitSpan.innerHTML = `${netProfit.toFixed(2)} ₽`;
             profitSpan.style.color = "#1c6e5c";
-            if (netProfit === 0) {
-                warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны).`;
-            } else {
-                warningSpan.innerHTML = `✅ Выплата: ${Math.round(targetPayout)} ₽ | Ставок: ${totalStaked} ₽ | Чистыми: ${netProfit.toFixed(2)} ₽`;
-            }
+            if (netProfit === 0) warningSpan.innerHTML = `⚖️ Прибыль = 0 (коэффициенты равны).`;
+            else warningSpan.innerHTML = `✅ Выплата: ${Math.round(targetPayout)} ₽ | Ставок: ${totalStaked} ₽ | Чистыми: ${netProfit.toFixed(2)} ₽`;
         }
         detailsSpan.innerHTML = `🎯 Любой исход даёт выплату ${Math.round(targetPayout)} ₽ | Всего поставлено = ${totalStaked} ₽`;
     }
+
+    function updateOutcomeDisplay(idx) {
+        let out = outcomes[idx];
+        let intVal = Math.floor(out.coeff);
+        let decVal = formatDecimalPart(out.coeff);
+        if (out.intDisplay) out.intDisplay.innerText = intVal;
+        if (out.decDisplay) out.decDisplay.innerText = decVal.toString().padStart(2, '0');
+        if (out.stakeDisplay) out.stakeDisplay.innerText = out.stake;
+    }
+
+    function openCoeffPicker(outcomeIdx) {
+        let out = outcomes[outcomeIdx];
+        let intVal = Math.floor(out.coeff);
+        let decVal = formatDecimalPart(out.coeff);
+        tempIntValue = intVal;
+        tempDecValue = decVal;
+        activePicker = { type: 'coeff', outcomeIdx: outcomeIdx };
+        pickerTitle.innerText = 'Выберите коэффициент';
+        // создаем два колеса
+        pickerWheels.innerHTML = `
+            <div class="wheel">
+                <select id="wheelInt" size="1">
+                    ${Array.from({length: 100}, (_, i) => `<option value="${i+1}" ${i+1 === tempIntValue ? 'selected' : ''}>${i+1}</option>`).join('')}
+                </select>
+                <div style="font-size:0.7rem; margin-top:5px;">целое</div>
+            </div>
+            <div class="wheel">
+                <select id="wheelDec" size="1">
+                    ${Array.from({length: 100}, (_, i) => `<option value="${i}" ${i === tempDecValue ? 'selected' : ''}>${i.toString().padStart(2, '0')}</option>`).join('')}
+                </select>
+                <div style="font-size:0.7rem; margin-top:5px;">сотые</div>
+            </div>
+        `;
+        const wheelInt = document.getElementById('wheelInt');
+        const wheelDec = document.getElementById('wheelDec');
+        wheelInt.addEventListener('change', (e) => { tempIntValue = parseInt(e.target.value); });
+        wheelDec.addEventListener('change', (e) => { tempDecValue = parseInt(e.target.value); });
+        pickerOverlay.classList.add('active');
+    }
+
+    function openStakePicker(outcomeIdx) {
+        let out = outcomes[outcomeIdx];
+        tempStakeValue = out.stake;
+        activePicker = { type: 'stake', outcomeIdx: outcomeIdx };
+        pickerTitle.innerText = 'Выберите сумму (₽)';
+        let options = [];
+        for (let i = 0; i <= 200; i += 10) options.push(i);
+        for (let i = 250; i <= 1000; i += 50) options.push(i);
+        for (let i = 1100; i <= 5000; i += 100) options.push(i);
+        options = [...new Set(options)].sort((a,b)=>a-b);
+        pickerWheels.innerHTML = `
+            <div class="wheel">
+                <select id="wheelStake" size="1" style="width:120px">
+                    ${options.map(v => `<option value="${v}" ${v === tempStakeValue ? 'selected' : ''}>${v} ₽</option>`).join('')}
+                </select>
+            </div>
+        `;
+        const wheelStake = document.getElementById('wheelStake');
+        wheelStake.addEventListener('change', (e) => { tempStakeValue = parseInt(e.target.value); });
+        pickerOverlay.classList.add('active');
+    }
+
+    function closePicker() {
+        pickerOverlay.classList.remove('active');
+        activePicker = null;
+    }
+
+    function applyPicker() {
+        if (!activePicker) return;
+        if (activePicker.type === 'coeff') {
+            let out = outcomes[activePicker.outcomeIdx];
+            let newCoeff = makeCoeff(tempIntValue, tempDecValue);
+            out.coeff = newCoeff;
+            updateOutcomeDisplay(activePicker.outcomeIdx);
+            let curStake = out.stake;
+            if (isNaN(curStake) || curStake <= 0) {
+                out.stake = 100;
+                updateOutcomeDisplay(activePicker.outcomeIdx);
+            }
+            recalcFrom(activePicker.outcomeIdx);
+        } else if (activePicker.type === 'stake') {
+            let out = outcomes[activePicker.outcomeIdx];
+            out.stake = tempStakeValue;
+            updateOutcomeDisplay(activePicker.outcomeIdx);
+            if (tempStakeValue > 0) recalcFrom(activePicker.outcomeIdx);
+            else warningSpan.innerText = `Сумма должна быть больше 0`;
+        }
+        closePicker();
+    }
+
+    pickerCancel.onclick = closePicker;
+    pickerDone.onclick = applyPicker;
 
     function render() {
         container.innerHTML = '';
@@ -387,96 +500,39 @@
             badge.className = 'badge';
             badge.innerText = `Исход ${i+1}`;
 
-            // ------ КОЭФФИЦИЕНТ С ДВУМЯ КРУТИЛКАМИ ------
+            // Коэффициент (кликабельный)
             const coeffGroup = document.createElement('div');
             coeffGroup.className = 'coeff-group';
-            
-            // Целая часть + спиннер
-            const intWrapper = document.createElement('div');
-            intWrapper.style.display = 'flex';
-            intWrapper.style.alignItems = 'center';
-            intWrapper.style.gap = '4px';
-            
-            const intInput = document.createElement('input');
-            intInput.type = 'text';
-            intInput.inputMode = 'numeric';
-            intInput.className = 'coeff-part';
-            intInput.style.width = '55px';
-            intInput.style.textAlign = 'center';
-            let intVal = Math.floor(out.coeff);
-            intInput.value = intVal;
-            
-            const intSpinGroup = document.createElement('div');
-            intSpinGroup.className = 'spin-group';
-            const intUp = document.createElement('button');
-            intUp.textContent = '▲';
-            intUp.className = 'spin-up';
-            const intDown = document.createElement('button');
-            intDown.textContent = '▼';
-            intDown.className = 'spin-down';
-            intSpinGroup.appendChild(intUp);
-            intSpinGroup.appendChild(intDown);
-            intWrapper.appendChild(intInput);
-            intWrapper.appendChild(intSpinGroup);
-            
+            const intSpan = document.createElement('span');
+            intSpan.className = 'coeff-part';
+            intSpan.style.fontSize = '1.3rem';
+            intSpan.style.fontWeight = '700';
+            const decSpan = document.createElement('span');
+            decSpan.className = 'coeff-part';
+            decSpan.style.fontSize = '1.3rem';
+            decSpan.style.fontWeight = '700';
             const sepSpan = document.createElement('span');
             sepSpan.className = 'coeff-sep';
             sepSpan.innerText = '.';
-            
-            // Десятичная часть + спиннер
-            const decWrapper = document.createElement('div');
-            decWrapper.style.display = 'flex';
-            decWrapper.style.alignItems = 'center';
-            decWrapper.style.gap = '4px';
-            
-            const decInput = document.createElement('input');
-            decInput.type = 'text';
-            decInput.inputMode = 'numeric';
-            decInput.className = 'coeff-part';
-            decInput.style.width = '55px';
-            decInput.style.textAlign = 'center';
-            let decStr = formatDecimalPart(out.coeff);
-            decInput.value = decStr;
-            
-            const decSpinGroup = document.createElement('div');
-            decSpinGroup.className = 'spin-group';
-            const decUp = document.createElement('button');
-            decUp.textContent = '▲';
-            decUp.className = 'spin-up';
-            const decDown = document.createElement('button');
-            decDown.textContent = '▼';
-            decDown.className = 'spin-down';
-            decSpinGroup.appendChild(decUp);
-            decSpinGroup.appendChild(decDown);
-            decWrapper.appendChild(decInput);
-            decWrapper.appendChild(decSpinGroup);
-            
-            coeffGroup.appendChild(intWrapper);
+            coeffGroup.appendChild(intSpan);
             coeffGroup.appendChild(sepSpan);
-            coeffGroup.appendChild(decWrapper);
+            coeffGroup.appendChild(decSpan);
+            
+            out.intDisplay = intSpan;
+            out.decDisplay = decSpan;
+            updateOutcomeDisplay(i);
 
-            // ------ СТАВКА С КРУТИЛКОЙ ------
-            const stakeWrapper = document.createElement('div');
-            stakeWrapper.className = 'stake-wrapper';
-            
-            const stakeInput = document.createElement('input');
-            stakeInput.type = 'text';
-            stakeInput.inputMode = 'numeric';
-            stakeInput.className = 'stake-input';
-            stakeInput.value = Math.round(out.stake);
-            
-            const stakeSpinGroup = document.createElement('div');
-            stakeSpinGroup.className = 'spin-group';
-            const stakeUp = document.createElement('button');
-            stakeUp.textContent = '▲';
-            stakeUp.className = 'spin-up';
-            const stakeDown = document.createElement('button');
-            stakeDown.textContent = '▼';
-            stakeDown.className = 'spin-down';
-            stakeSpinGroup.appendChild(stakeUp);
-            stakeSpinGroup.appendChild(stakeDown);
-            stakeWrapper.appendChild(stakeInput);
-            stakeWrapper.appendChild(stakeSpinGroup);
+            coeffGroup.onclick = (function(idx) { return () => openCoeffPicker(idx); })(i);
+
+            // Ставка (кликабельная)
+            const stakeField = document.createElement('div');
+            stakeField.className = 'stake-field';
+            const stakeSpan = document.createElement('span');
+            stakeSpan.style.fontWeight = '600';
+            stakeField.appendChild(stakeSpan);
+            out.stakeDisplay = stakeSpan;
+            updateOutcomeDisplay(i);
+            stakeField.onclick = (function(idx) { return () => openStakePicker(idx); })(i);
 
             const removeBtn = document.createElement('button');
             removeBtn.innerText = '✕';
@@ -486,113 +542,9 @@
 
             row.appendChild(badge);
             row.appendChild(coeffGroup);
-            row.appendChild(stakeWrapper);
+            row.appendChild(stakeField);
             row.appendChild(removeBtn);
             container.appendChild(row);
-
-            out.intInput = intInput;
-            out.decInput = decInput;
-            out.stakeInput = stakeInput;
-
-            // Функция обновления коэффа
-            const updateCoeff = () => {
-                let newCoeff = makeCoeff(intInput.value, decInput.value);
-                out.coeff = newCoeff;
-                intInput.value = Math.floor(newCoeff);
-                decInput.value = formatDecimalPart(newCoeff);
-                let curStake = out.stake;
-                if (isNaN(curStake) || curStake <= 0) {
-                    curStake = 100;
-                    out.stake = 100;
-                    stakeInput.value = "100";
-                }
-                recalcFrom(i);
-            };
-
-            // Обработчики для целой части
-            intInput.oninput = updateCoeff;
-            intUp.onclick = () => {
-                let val = parseInt(intInput.value) || 1;
-                if (val < 100) intInput.value = val + 1;
-                updateCoeff();
-            };
-            intDown.onclick = () => {
-                let val = parseInt(intInput.value) || 1;
-                if (val > 1) intInput.value = val - 1;
-                updateCoeff();
-            };
-            intInput.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                let delta = e.deltaY > 0 ? -1 : 1;
-                let val = parseInt(intInput.value) || 1;
-                let newVal = val + delta;
-                if (newVal >= 1 && newVal <= 100) intInput.value = newVal;
-                updateCoeff();
-            });
-
-            // Обработчики для десятичной части
-            decInput.oninput = updateCoeff;
-            decUp.onclick = () => {
-                let val = parseInt(decInput.value) || 0;
-                if (val < 99) {
-                    let newVal = val + 1;
-                    decInput.value = newVal.toString().padStart(2, '0');
-                }
-                updateCoeff();
-            };
-            decDown.onclick = () => {
-                let val = parseInt(decInput.value) || 0;
-                if (val > 0) {
-                    let newVal = val - 1;
-                    decInput.value = newVal.toString().padStart(2, '0');
-                }
-                updateCoeff();
-            };
-            decInput.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                let delta = e.deltaY > 0 ? -1 : 1;
-                let val = parseInt(decInput.value) || 0;
-                let newVal = val + delta;
-                if (newVal >= 0 && newVal <= 99) {
-                    decInput.value = newVal.toString().padStart(2, '0');
-                    updateCoeff();
-                }
-            });
-
-            // Обработчики для ставки
-            const updateStake = () => {
-                let val = parseInt(stakeInput.value) || 0;
-                if (val < 0) val = 0;
-                out.stake = val;
-                stakeInput.value = val;
-                if (val > 0) recalcFrom(i);
-                else warningSpan.innerText = `Сумма должна быть больше 0`;
-            };
-            stakeInput.oninput = () => {
-                let val = parseInt(stakeInput.value.replace(/\D/g, '')) || 0;
-                stakeInput.value = val;
-                updateStake();
-            };
-            stakeUp.onclick = () => {
-                let val = parseInt(stakeInput.value) || 0;
-                stakeInput.value = val + 10;
-                updateStake();
-            };
-            stakeDown.onclick = () => {
-                let val = parseInt(stakeInput.value) || 0;
-                if (val >= 10) stakeInput.value = val - 10;
-                else if (val > 0) stakeInput.value = 0;
-                updateStake();
-            };
-            stakeInput.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                let delta = e.deltaY > 0 ? -10 : 10;
-                let val = parseInt(stakeInput.value) || 0;
-                let newVal = val + delta;
-                if (newVal < 0) newVal = 0;
-                stakeInput.value = newVal;
-                updateStake();
-            });
 
             if (removeBtn && !removeBtn.disabled) {
                 removeBtn.onclick = (function(idx) {
@@ -601,12 +553,11 @@
                         outcomes.splice(idx, 1);
                         render();
                         if (outcomes.length > 0) {
-                            let firstIdx = 0;
-                            if (isNaN(outcomes[firstIdx].stake) || outcomes[firstIdx].stake <= 0) {
-                                outcomes[firstIdx].stake = 100;
-                                if (outcomes[firstIdx].stakeInput) outcomes[firstIdx].stakeInput.value = "100";
+                            if (isNaN(outcomes[0].stake) || outcomes[0].stake <= 0) {
+                                outcomes[0].stake = 100;
+                                updateOutcomeDisplay(0);
                             }
-                            recalcFrom(firstIdx);
+                            recalcFrom(0);
                         }
                     };
                 })(i);
@@ -636,7 +587,7 @@
         if (outcomes.length > 0) {
             if (isNaN(outcomes[0].stake) || outcomes[0].stake <= 0) {
                 outcomes[0].stake = 100;
-                if (outcomes[0].stakeInput) outcomes[0].stakeInput.value = "100";
+                updateOutcomeDisplay(0);
             }
             recalcFrom(0);
         }
@@ -650,7 +601,7 @@
         render();
         let s2 = Math.round((1000 * 2.00) / 2.50);
         outcomes[1].stake = s2;
-        if (outcomes[1].stakeInput) outcomes[1].stakeInput.value = s2;
+        updateOutcomeDisplay(1);
         recalcFrom(0);
     }
 
@@ -662,7 +613,7 @@
         render();
         let second = Math.round((1000 * 2.00) / 2.50);
         outcomes[1].stake = second;
-        if (outcomes[1].stakeInput) outcomes[1].stakeInput.value = second;
+        updateOutcomeDisplay(1);
         recalcFrom(0);
     }
 
@@ -671,4 +622,4 @@
     init();
 </script>
 </body>
-</html>х
+</html>
